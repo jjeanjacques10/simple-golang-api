@@ -1,0 +1,42 @@
+# .gitignore for Golang apps
+
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+
+# Build output
+/bin/
+/build/
+/out/
+/dist/
+*.a
+
+# Dependency directories (uncomment if you don't vendor)
+vendor/
+Godeps/
+
+# IDE/editor folders
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment and secret files
+.env
+.env.*.local
+
+# Logs and coverage
+*.log
+coverage.out
+*.coverprofile
+
+# Temporary files created by tools/editors
+*.orig
+*.swp
+*.swo
