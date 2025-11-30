@@ -44,8 +44,10 @@ func main() {
 		switch r.Method {
 		case http.MethodDelete:
 			productHandler.DeleteProduct(w, r)
+		case http.MethodGet:
+			productHandler.FindProductByID(w, r)
 		default:
-			w.Header().Set("Allow", "DELETE")
+			w.Header().Set("Allow", "DELETE, GET")
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
@@ -129,4 +131,21 @@ func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *ProductHandler) FindProductByID(w http.ResponseWriter, r *http.Request) {
+	vars := r.URL.Path[len("/products/"):]
+	id := vars
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	fmt.Println("Fetching product with ID:", id)
+	product, err := h.ProductDB.FindByID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(product)
 }
