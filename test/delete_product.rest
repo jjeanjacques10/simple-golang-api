@@ -1,0 +1,5 @@
+DELETE http://localhost:8080/products/738476c9-39cd-434c-a6d7-0dcb403fe83c HTTP/1.1
+
+
+## Expected response
+HTTP/1.1 204 No Content
