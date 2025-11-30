@@ -46,8 +46,10 @@ func main() {
 			productHandler.DeleteProduct(w, r)
 		case http.MethodGet:
 			productHandler.FindProductByID(w, r)
+		case http.MethodPatch:
+			productHandler.UpdateProduct(w, r)
 		default:
-			w.Header().Set("Allow", "DELETE, GET")
+			w.Header().Set("Allow", "DELETE, GET, PATCH")
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
@@ -148,4 +150,35 @@ func (h *ProductHandler) FindProductByID(w http.ResponseWriter, r *http.Request)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(product)
+}
+
+func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	vars := r.URL.Path[len("/products/"):]
+	id := vars
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	var product dto.UpdateProductInput
+	err := json.NewDecoder(r.Body).Decode(&product)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	fmt.Printf("Updating product with ID: %s\n and data: %+v\n", id, product)
+	existingProduct, err := h.ProductDB.FindByID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	existingProduct.Name = *product.Name
+	existingProduct.Price = int(*product.Price)
+
+	err = h.ProductDB.Update(existingProduct)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
