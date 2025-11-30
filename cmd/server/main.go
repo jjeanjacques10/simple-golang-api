@@ -27,7 +27,7 @@ func main() {
 	db.AutoMigrate(&entity.Product{}, &entity.User{})
 
 	// Teste Endpoint
-	productDB := database.NewProduct(db)
+	productDB := database.NewProductDB(db)
 	productHandler := NewProductHandler(productDB)
 	http.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
