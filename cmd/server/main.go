@@ -40,6 +40,15 @@ func main() {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
+	http.HandleFunc("/products/{id}", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodDelete:
+			productHandler.DeleteProduct(w, r)
+		default:
+			w.Header().Set("Allow", "DELETE")
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -104,4 +113,20 @@ func (h *ProductHandler) FindAllProducts(w http.ResponseWriter, r *http.Request)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(products)
+}
+
+func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	vars := r.URL.Path[len("/products/"):]
+	id := vars
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	fmt.Println("Deleting product with ID:", id)
+	err := h.ProductDB.Delete(id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
